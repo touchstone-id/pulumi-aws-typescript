@@ -42,22 +42,20 @@ on:
         required: true
         default: 'dev'
         type: string
-    aws-profile:
+      aws-profile:
         description: 'The name of the aws cli profile to be set i.e [qa]'
         required: true
         default: default
         type: string
-    pulumi-org-id:
+      pulumi-org-id:
         description: 'The the pulumi org or pulumi team namespace'
         required: true
-    pulumi-action:
+        type: string
+      pulumi-action:
         description: "The pulumi command to execute"
         required: true
         default: 'preview'
-        type: choice
-        options:
-          - up
-          - preview
+        type: string
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
