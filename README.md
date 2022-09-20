@@ -47,8 +47,8 @@ jobs:
 
 This workflow uses the following dependencies:
 
-actions/checkout
-actions/setup-node
-aws-actions/configure-aws-credentials
-actions/cache
-pulumi/actions
+- actions/checkout
+- actions/setup-node
+- aws-actions/configure-aws-credentials
+- actions/cache
+- pulumi/actions
