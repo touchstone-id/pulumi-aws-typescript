@@ -42,6 +42,22 @@ on:
         required: true
         default: 'dev'
         type: string
+    aws-profile:
+        description: 'The name of the aws cli profile to be set i.e [qa]'
+        required: true
+        default: default
+        type: string
+    pulumi-org-id:
+        description: 'The the pulumi org or pulumi team namespace'
+        required: true
+    pulumi-action:
+        description: "The pulumi command to execute"
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - up
+          - preview
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
@@ -54,7 +70,7 @@ on:
 jobs:
   deploy:
     environment: ${{ inputs.environment }}
-    name: ${{ inputs.environment }} - Infrastructure - ${{ pulumi-action }}
+    name: ${{ inputs.environment }} - Infrastructure - ${{ inputs.pulumi-action }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
