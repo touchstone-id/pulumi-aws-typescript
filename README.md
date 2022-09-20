@@ -11,6 +11,8 @@ You must have an AWS account and cli configured user provisioned.
 
 Your project must by node or typescript.
 
+This assumes you also have a github deploy environment setup for 'dev' and 'prod'.
+
 Configured secrets:
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
