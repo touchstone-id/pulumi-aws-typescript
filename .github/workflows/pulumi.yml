@@ -1,0 +1,96 @@
+name: Pulumi Deploy to AWS
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The github deploy environment for secrets [dev || prod]. default: dev'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - prod
+      aws-profile:
+        description: 'The name of the aws cli profile to be set i.e [qa]'
+        required: true
+        default: default
+        type: string
+      pulumi-org-id:
+        description: 'The the pulumi org or pulumi team namespace'
+        required: true
+      pulumi-action:
+        description: "The pulumi command to execute"
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - up
+          - preview
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The environment to deploy to [dev || prod]. default: dev'
+        required: true
+        default: 'dev'
+        type: string
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
+jobs:
+  deploy:
+    environment: ${{ inputs.environment }}
+    name: ${{ inputs.environment }} - Infrastructure - ${{ pulumi-action }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Add profile credentials to ~/.aws/credentials 
+        run: |
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile ${{ inputs.aws-profile }}
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile ${{ inputs.aws-profile }}
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+      - name: Cache node modules
+        uses: actions/cache@v3
+        id: cache-node-modules
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Dependencies
+        run: npm install
+      - name: Pulumi Action
+        uses: pulumi/actions@v3
+        with:
+          command: ${{ inputs.pulumi-action }}
+          stack-name: ${{ inputs.pulumi-org-id }}/${{ inputs.environment }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
