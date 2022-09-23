@@ -88,6 +88,7 @@ jobs:
         with:
           node-version: 14.x
       - name: Get npm cache directory
+        working-directory: ./pulumi/
         id: npm-cache-dir
         run: |
           echo "::set-output name=dir::$(npm config get cache)"
@@ -100,6 +101,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install Dependencies
+        working-directory: ./pulumi/
         run: npm install
       - name: Pulumi Action
         uses: pulumi/actions@v3
