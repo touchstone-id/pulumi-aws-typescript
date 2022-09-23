@@ -104,6 +104,7 @@ jobs:
       - name: Pulumi Action
         uses: pulumi/actions@v3
         with:
+          work-dir: ./pulumi/
           command: ${{ inputs.pulumi-action }}
           stack-name: ${{ inputs.pulumi-org-id }}/${{ inputs.environment }}
         env:
